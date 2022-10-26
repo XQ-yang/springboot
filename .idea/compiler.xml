@@ -9,11 +9,13 @@
         <outputRelativeToContentRoot value="true" />
         <module name="springboot-mybatis-plus" />
         <module name="springboot" />
+        <module name="springboot-thymeleaf" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="springboot" target="1.8" />
       <module name="springboot-mybatis-plus" target="1.8" />
+      <module name="springboot-thymeleaf" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

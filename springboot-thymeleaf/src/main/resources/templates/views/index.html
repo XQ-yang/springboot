@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<h1>hello，world</h1>
+<span th:text="'欢迎您，'+${user.name}+'!'"></span>
+<br/>
+<div th:switch="${user.role}">
+    <p th:case="'admin'">管理员</p>
+    <p th:case="'emp'">员工</p>
+    <p th:case="'gongren'">工人</p>
+</div>
+</body>
+</html>
