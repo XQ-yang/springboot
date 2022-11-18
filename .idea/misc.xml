@@ -7,10 +7,15 @@
         <option value="$PROJECT_DIR$/springboot-mybatis-plus/pom.xml" />
         <option value="$PROJECT_DIR$/springboot-thymeleaf/pom.xml" />
         <option value="$PROJECT_DIR$/springboot-redis/pom.xml" />
+        <option value="$PROJECT_DIR$/springboot-upanddown/pom.xml" />
+        <option value="$PROJECT_DIR$/springboot-Spring-Data-Jpa/pom.xml" />
       </list>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8 (2)" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
   </component>
 </project>

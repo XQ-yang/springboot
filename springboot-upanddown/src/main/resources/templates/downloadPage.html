@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>downloadPage</title>
+  <style>
+    a{
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+<span th:if="${fileList.length == 0}">没有文件可下载</span>
+<div th:if="${fileList.length != 0}">
+  文件列表：
+  <ul>
+    <li th:each="file:${fileList}" ><a th:href="@{'http://localhost:8080/file/download?fileName=' + ${file}}" th:text="${file}"></a> </li>
+  </ul>
+</div>
+<img src="D:/upload/5bd9670665564db7b60d74363baffdff.png">
+</body>
+</html>

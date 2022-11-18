@@ -8,6 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="springboot-mybatis-plus" />
+        <module name="springboot-upanddown" />
+        <module name="springboot-Spring-Data-Jpa" />
         <module name="springboot-thymeleaf" />
         <module name="springboot-redis" />
         <module name="springboot" />
@@ -17,7 +19,9 @@
       <module name="springboot" target="1.8" />
       <module name="springboot-mybatis-plus" target="1.8" />
       <module name="springboot-redis" target="1.8" />
+      <module name="springboot-Spring-Data-Jpa" target="1.8" />
       <module name="springboot-thymeleaf" target="1.8" />
+      <module name="springboot-upanddown" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

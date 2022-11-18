@@ -1,6 +1,6 @@
 package com.yang.springbootmybatisplus;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yang.springbootmybatisplus.entity.Employee;
 import com.yang.springbootmybatisplus.mapper.EmployeeMapper;
 import org.junit.jupiter.api.Test;
@@ -28,11 +28,9 @@ class SpringbootMybatisPlusApplicationTests {
 
     @Test
     void selectByLike(){
-        QueryWrapper<Employee> employeeQueryWrapper = new QueryWrapper<>();
-        employeeQueryWrapper
-                .ge("age",28)
-                .or().like("last_name", "Bab");
-        List<Employee> employees = employeeMapper.selectList(employeeQueryWrapper);
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Employee::getLastName,"Bab");
+        List<Employee> employees = employeeMapper.selectList(queryWrapper);
         employees.forEach(System.out::println);
     }
 
