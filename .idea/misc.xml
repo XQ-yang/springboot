@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/springboot-redis/pom.xml" />
         <option value="$PROJECT_DIR$/springboot-upanddown/pom.xml" />
         <option value="$PROJECT_DIR$/springboot-Spring-Data-Jpa/pom.xml" />
+        <option value="$PROJECT_DIR$/springboot-aliyunoss/pom.xml" />
       </list>
     </option>
   </component>

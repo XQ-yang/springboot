@@ -3,26 +3,31 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.yang</groupId>
-    <artifactId>springboot-Spring-Data-Jpa</artifactId>
+    <artifactId>springboot-aliyunoss</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-Spring-Data-Jpa</name>
-    <description>springboot-Spring-Data-Jpa</description>
+    <name>springboot-aliyunoss</name>
+    <description>springboot-aliyunoss</description>
 
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>2.3.7.RELEASE</spring-boot.version>
+        <spring-boot.version>2.4.1</spring-boot.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.4.2</version>
         </dependency>
 
         <dependency>
@@ -36,17 +41,15 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>1.2.15</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -54,10 +57,10 @@
             <artifactId>knife4j-spring-boot-starter</artifactId>
             <version>3.0.3</version>
         </dependency>
-
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.12.0</version>
         </dependency>
 
         <dependency>
@@ -67,17 +70,6 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -107,9 +99,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.3.7.RELEASE</version>
+                <version>2.4.1</version>
                 <configuration>
-                    <mainClass>com.yang.springbootspringdatajpa.SpringbootSpringDataJpaApplication</mainClass>
+                    <mainClass>com.yang.springbootaliyunoss.SpringbootAliyunossApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

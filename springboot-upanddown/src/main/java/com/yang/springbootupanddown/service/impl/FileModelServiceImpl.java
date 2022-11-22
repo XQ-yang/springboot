@@ -29,7 +29,7 @@ public class FileModelServiceImpl extends ServiceImpl<FileModelMapper, FileModel
 
     @Override
     public String upload(String uploadPath, MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
+        if (file == null) {
             return "没有选择文件";
         }
         // 文件原始名称

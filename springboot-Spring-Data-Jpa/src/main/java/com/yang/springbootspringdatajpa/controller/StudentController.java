@@ -43,8 +43,8 @@ public class StudentController {
 
     @ApiOperation("分页获取学生信息列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "当前页数", paramType = "query", dataType = "Integer", defaultValue = "0"),
-            @ApiImplicitParam(name = "pageSize", value = "每页条数", paramType = "query", dataType = "Integer", defaultValue = "10"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页数", paramType = "query", dataType = "Integer", example = "0"),
+            @ApiImplicitParam(name = "pageSize", value = "每页条数", paramType = "query", dataType = "Integer", example = "10"),
     })
     @GetMapping("/studentPageList")
     public Result<Page<Student>> getListPage(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {

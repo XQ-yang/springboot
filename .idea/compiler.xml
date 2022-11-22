@@ -7,16 +7,18 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="springboot-thymeleaf" />
+        <module name="springboot-redis" />
         <module name="springboot-mybatis-plus" />
         <module name="springboot-upanddown" />
         <module name="springboot-Spring-Data-Jpa" />
-        <module name="springboot-thymeleaf" />
-        <module name="springboot-redis" />
+        <module name="springboot-aliyunoss" />
         <module name="springboot" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="springboot" target="1.8" />
+      <module name="springboot-aliyunoss" target="1.8" />
       <module name="springboot-mybatis-plus" target="1.8" />
       <module name="springboot-redis" target="1.8" />
       <module name="springboot-Spring-Data-Jpa" target="1.8" />

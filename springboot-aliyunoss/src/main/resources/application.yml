@@ -1,0 +1,30 @@
+server:
+    port: 8080
+spring:
+    application:
+        name: springboot-aliyunoss
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        name: defaultDataSource
+        password: yxq
+        url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC
+        username: root
+    thymeleaf:
+        cache: true
+        check-template: true
+        check-template-location: true
+        content-type: text/html
+        enabled: true
+        encoding: UTF-8
+        excluded-view-names: ''
+        mode: HTML5
+        prefix: classpath:/templates/
+        suffix: .html
+
+aliyun:
+    oss:
+        accessKeyId: LTAI5tEjWPTvB3zU4sewsxv2
+        accessKeySecret: SPzHO2UUEBVsARJn0t0KiHDrWcTdWx
+        endpoint: oss-cn-hangzhou.aliyuncs.com
+        bucket: yang-aliyun-oss
+        filehost: upload
