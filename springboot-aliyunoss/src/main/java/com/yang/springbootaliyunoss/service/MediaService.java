@@ -1,7 +1,7 @@
 package com.yang.springbootaliyunoss.service;
 
-import com.yang.springbootaliyunoss.entity.Media;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yang.springbootaliyunoss.entity.Media;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,4 +25,12 @@ public interface MediaService extends IService<Media> {
      * @param response
      */
     void download(String fileName, HttpServletResponse response);
+
+
+    /**
+     * 获取文件原始名称
+     * @param fileName
+     * @return
+     */
+    Media getFileName(String fileName);
 }

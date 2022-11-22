@@ -10,7 +10,7 @@ spring:
         url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC
         username: root
     thymeleaf:
-        cache: true
+        cache: false
         check-template: true
         check-template-location: true
         content-type: text/html
@@ -20,6 +20,10 @@ spring:
         mode: HTML5
         prefix: classpath:/templates/
         suffix: .html
+
+mybatis-plus:
+  configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 aliyun:
     oss:

@@ -1,5 +1,7 @@
 package com.yang.springbootaliyunoss.entity;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -18,5 +20,9 @@ public class AliyunOssProperties {
     private String endpoint;
     private String bucket;
     private String filehost;
+
+    public OSS ossClient() {
+        return new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+    }
 
 }
