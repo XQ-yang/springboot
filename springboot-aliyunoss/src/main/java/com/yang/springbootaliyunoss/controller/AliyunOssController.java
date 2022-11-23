@@ -41,13 +41,11 @@ public class AliyunOssController {
         return success("上传成功", mediaService.uploadFile(file));
     }
 
+    @ResponseBody
     @GetMapping("/toDownload")
-    public String toDownload(Model model) {
+    public Result<List<Media>> toDownload() {
         List<Media> list = mediaService.list();
-        System.err.println(list.size());
-        model.addAttribute("mediaList", list);
-
-        return "downloadPage";
+        return success(list);
     }
 
     @ApiOperation("文件下载")

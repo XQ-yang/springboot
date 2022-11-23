@@ -1,12 +1,12 @@
 server:
-    port: 8080
+    port: 8099
 spring:
     application:
         name: springboot-aliyunoss
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         name: defaultDataSource
-        password: yxq
+        password: 123456
         url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC
         username: root
     thymeleaf:
@@ -27,8 +27,8 @@ mybatis-plus:
 
 aliyun:
     oss:
-        accessKeyId: LTAI5tEjWPTvB3zU4sewsxv2
-        accessKeySecret: SPzHO2UUEBVsARJn0t0KiHDrWcTdWx
+        accessKeyId: LTAI5tFjAPZ585HhAq4hrU65
+        accessKeySecret: 0gr012A0juUIhOjNzD7Nckfey4v205
         endpoint: oss-cn-hangzhou.aliyuncs.com
         bucket: yang-aliyun-oss
         filehost: upload
