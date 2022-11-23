@@ -7,11 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="springboot-thymeleaf" />
         <module name="springboot-redis" />
+        <module name="springboot-thymeleaf" />
         <module name="springboot-mybatis-plus" />
-        <module name="springboot-upanddown" />
         <module name="springboot-Spring-Data-Jpa" />
+        <module name="springboot-upanddown" />
         <module name="springboot-aliyunoss" />
         <module name="springboot" />
       </profile>

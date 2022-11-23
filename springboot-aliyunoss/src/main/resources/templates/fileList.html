@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>文件信息列表</title>
+    <!-- Bootstrap 的 CSS 文件 -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{/js/jquery-3.6.1.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: greenyellow;
+        }
+
+        a:active {
+            color: aqua;
+        }
+
+        .table {
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th th:width="80">#</th>
+        <th th:width="180">文件名</th>
+        <th th:width="100">文件类型</th>
+        <th th:width="100">文件大小(KB)</th>
+        <th th:width="300">下载链接</th>
+        <th th:width="200">创建时间</th>
+        <th th:width="200">修改时间</th>
+        <th>图片</th>
+        <th th:width="100">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="file:${mediaList}">
+        <th th:text="${file.id}"></th>
+        <th th:text="${file.name}"></th>
+        <th th:text="${file.type}"></th>
+        <th th:text="${file.size/1024}"></th>
+        <th th:text="${file.url}"></th>
+        <th th:text="${#dates.format(file.createTime,'yyyy-MM-dd hh:mm:ss')}"></th>
+        <th th:text="${#dates.format(file.modifyTime,'yyyy-MM-dd hh:mm:ss')}"></th>
+        <th><img
+                th:if="${file.type.equalsIgnoreCase('png') || file.type.equalsIgnoreCase('jpg') || file.type.equalsIgnoreCase('jpeg') }"
+                th:src="@{${file.url}}" style="width: 100px"/></th>
+        <th>
+            <button class="btn-primary" th:text="下载" th:onclick="downloadFile([[${file.newName}]])"></button>
+            <button class="btn-danger" th:text="删除" th:onclick=""></button>
+        </th>
+    </tr>
+    </tbody>
+</table>
+</body>
+<script>
+    function downloadFile(newName) {
+        window.open("http://localhost:8080/aliyunoss/download?fileName=" + newName)
+    }
+</script>
+</html>

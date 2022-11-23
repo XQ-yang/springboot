@@ -21,8 +21,8 @@ public class Result<T> {
     private String msg;
     private T data;
 
-    public static <T> Result<T> success() {
-        return new Result<>(SUCCESS_CODE, "",null);
+    public static <T> Result<T> success(T data) {
+        return new Result<>(SUCCESS_CODE, "请求成功！",data);
     }
 
     public static <T> Result<T> success(String msg, T data) {
