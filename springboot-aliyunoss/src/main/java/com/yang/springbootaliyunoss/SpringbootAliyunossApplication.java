@@ -1,5 +1,6 @@
 package com.yang.springbootaliyunoss;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 @SpringBootApplication
+@MapperScan("com.yang.springbootaliyunoss.mapper")
 public class SpringbootAliyunossApplication {
 
     public static void main(String[] args) throws UnknownHostException {

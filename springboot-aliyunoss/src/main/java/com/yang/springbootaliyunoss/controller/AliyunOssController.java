@@ -1,6 +1,8 @@
 package com.yang.springbootaliyunoss.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yang.springbootaliyunoss.entity.Media;
+import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
 import com.yang.springbootaliyunoss.service.MediaService;
 import com.yang.springbootaliyunoss.util.Result;
 import io.swagger.annotations.Api;
@@ -22,37 +24,37 @@ import static com.yang.springbootaliyunoss.util.Result.success;
  * @IDE: IntelliJ IDEA
  */
 @Api(tags = "阿里云OSS")
-@Controller
+@RestController
 @RequestMapping("/aliyunoss")
 public class AliyunOssController {
     @Autowired
     MediaService mediaService;
 
-    @GetMapping("")
-    public String toUpload() {
-        return "upload";
-    }
 
     @ApiOperation("文件上传")
-    @ResponseBody
     @PostMapping("/upload")
-    public Result<String> mediaUpload(@RequestPart("file") MultipartFile file) {
-        return success("上传成功", mediaService.uploadFile(file));
+    public Result<String> mediaUpload(@RequestPart("file") MultipartFile file, @RequestParam(defaultValue = "1") Integer storeType) {
+        MediaStoreTypeEnum mediaStoreTypeEnum = MediaStoreTypeEnum.valueOf(storeType);
+        return success("上传成功", mediaService.uploadFile(file, mediaStoreTypeEnum));
     }
 
-    @ResponseBody
-    @GetMapping("/toDownload")
-    public Result<List<Media>> toDownload() {
-        List<Media> list = mediaService.list();
+    @GetMapping("/mediaList")
+    public Result<Page<Media>> fileList(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        Page<Media> list = mediaService.mediaListByPage(pageNum, pageSize);
         return success(list);
     }
 
     @ApiOperation("文件下载")
-    @ResponseBody
     @GetMapping("/download")
     public void mediaDownload(@RequestParam("fileName") String fileName, HttpServletResponse response) {
         System.err.println(fileName);
         mediaService.download(fileName, response);
+    }
+
+    @ApiOperation("逻辑删除文件记录")
+    @GetMapping("/delete/{id}")
+    public Result<Boolean> deleteFile(@PathVariable Integer id) {
+        return success(mediaService.removeById(id));
     }
 
 }

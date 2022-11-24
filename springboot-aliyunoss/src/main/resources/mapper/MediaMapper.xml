@@ -12,7 +12,7 @@
             <result property="md5" column="md5" jdbcType="VARCHAR"/>
             <result property="newName" column="new_name" jdbcType="VARCHAR"/>
             <result property="url" column="url" jdbcType="VARCHAR"/>
-            <result property="downloadUrl" column="download_url" jdbcType="VARCHAR"/>
+            <result property="storeType" column="store_type" jdbcType="VARCHAR"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="modifyTime" column="modify_time" jdbcType="TIMESTAMP"/>
@@ -21,7 +21,7 @@
     <sql id="Base_Column_List">
         id,name,type,
         size,md5,new_name,
-        url,download_url,is_deleted,
+        url,store_type,is_deleted,
         create_time,modify_time
     </sql>
 </mapper>

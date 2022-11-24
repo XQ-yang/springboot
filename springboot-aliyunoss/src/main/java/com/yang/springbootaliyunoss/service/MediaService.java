@@ -1,10 +1,13 @@
 package com.yang.springbootaliyunoss.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yang.springbootaliyunoss.entity.Media;
+import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
 * @author 小强
@@ -15,9 +18,10 @@ public interface MediaService extends IService<Media> {
     /**
      * aliyunOSS上传文件
      * @param file
+     * @param mediaStoreTypeEnum
      * @return
      */
-    String uploadFile(MultipartFile file);
+    String uploadFile(MultipartFile file, MediaStoreTypeEnum mediaStoreTypeEnum);
 
     /**
      * 文件下载
@@ -33,4 +37,12 @@ public interface MediaService extends IService<Media> {
      * @return
      */
     Media getFileName(String fileName);
+
+    /**
+     * 分页
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    Page<Media> mediaListByPage(Integer pageNum, Integer pageSize);
 }

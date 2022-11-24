@@ -6,13 +6,16 @@ import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.PutObjectResult;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yang.springbootaliyunoss.entity.AliyunOssProperties;
 import com.yang.springbootaliyunoss.entity.Media;
+import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
 import com.yang.springbootaliyunoss.exception.ApiException;
 import com.yang.springbootaliyunoss.mapper.MediaMapper;
 import com.yang.springbootaliyunoss.service.MediaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +23,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -41,6 +45,9 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
     private String bucket;
     private String filehost;
 
+    @Value("${local.uploadPath}")
+    private String uploadPath;
+
     /**
      * java系统包自带的注解，标注的方法会在构造器调用完毕后执行一次
      */
@@ -52,7 +59,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
     }
 
     @Override
-    public String uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file, MediaStoreTypeEnum mediaStoreTypeEnum) {
         OSS ossClient = aliyunOssProperties.ossClient();
         // 文件原始名称
         String originalFilename = file.getOriginalFilename();
@@ -72,20 +79,34 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
             // 文件的md5
             String md5 = md5(file.getInputStream());
             Media fileByMd5 = getFileByMd5(md5);
-            if (fileByMd5 != null) {
-                url = fileByMd5.getUrl();
-                newFileName = fileByMd5.getNewName();
-            } else {
-                PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + newFileName, file.getInputStream());
-                if (result != null) {
-                    url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + newFileName;
-                }
+
+            switch (mediaStoreTypeEnum) {
+                case LOCAL:
+                    System.err.println("===============Hello=================================");
+                    File dir = new File(uploadPath);
+                    if (!dir.exists()) {
+                        dir.mkdirs();
+                    }
+                    file.transferTo(new File(uploadPath + originalFilename));
+                    url = uploadPath + originalFilename;
+                    break;
+
+                case ALIYUNOSS:
+                    System.err.println("===============world=================================");
+                    PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + originalFilename, file.getInputStream());
+                    if (result != null) {
+                        url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + originalFilename;
+                    }
+                    break;
+
             }
+
             Media media = new Media();
             media.setName(originalFilename);
             media.setType(type);
             media.setSize(size);
             media.setMd5(md5);
+            media.setStoreType(mediaStoreTypeEnum.getType());
             media.setUrl(url);
             media.setNewName(newFileName);
 
@@ -96,6 +117,57 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         } finally {
             ossClient.shutdown();
         }
+
+//        try {
+//            // 文件的md5
+//            String md5 = md5(file.getInputStream());
+//            Media fileByMd5 = getFileByMd5(md5);
+//
+//            switch (mediaStoreTypeEnum) {
+//                case LOCAL:
+//                    if (fileByMd5 != null) {
+//                        url = fileByMd5.getUrl();
+//                        newFileName = fileByMd5.getNewName();
+//                    } else {
+//                        System.err.println("===============Hello=================================");
+//                        File dir = new File(uploadPath);
+//                        if (!dir.exists()) {
+//                            dir.mkdirs();
+//                        }
+//                        file.transferTo(new File(uploadPath + newFileName));
+//                        url = uploadPath + newFileName;
+//                        break;
+//                    }
+//                case ALIYUNOSS:
+//                    if (fileByMd5 != null) {
+//                        url = fileByMd5.getUrl();
+//                        newFileName = fileByMd5.getNewName();
+//                    } else {
+//                        System.err.println("===============Hello=================================");
+//                        PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + newFileName, file.getInputStream());
+//                        if (result != null) {
+//                            url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + newFileName;
+//                        }
+//                        break;
+//                    }
+//            }
+//
+//            Media media = new Media();
+//            media.setName(originalFilename);
+//            media.setType(type);
+//            media.setSize(size);
+//            media.setMd5(md5);
+//            media.setStoreType(mediaStoreTypeEnum.getType());
+//            media.setUrl(url);
+//            media.setNewName(newFileName);
+//
+//            baseMapper.insert(media);
+//            return url;
+//        } catch (IOException e) {
+//            throw new ApiException("301", "上传失败！");
+//        } finally {
+//            ossClient.shutdown();
+//        }
     }
 
 
@@ -118,6 +190,9 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
 
         try {
             OSSObject ossObject = null;
+            // 设置响应头、以附件形式打开文件
+            response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(fileName, "UTF-8"));
+
             try {
                 ossObject = ossClient.getObject(bucket, filehost + "/" + fileName);
             } catch (OSSException e) {
@@ -126,11 +201,10 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                 throw new ApiException("500", "服务器错误！");
             }
 
-            // 设置响应头、以附件形式打开文件
-            response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(originalFileName, "UTF-8"));
+
             // 读取文件内容
-             inputStream = new BufferedInputStream(ossObject.getObjectContent());
-             outputStream = new BufferedOutputStream(response.getOutputStream());
+            inputStream = new BufferedInputStream(ossObject.getObjectContent());
+            outputStream = new BufferedOutputStream(response.getOutputStream());
 
             byte[] bytes = new byte[1024];
             int length;
@@ -172,6 +246,13 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                 .eq(Media::getIsDeleted, 0);
         List<Media> mediaList = baseMapper.selectList(queryWrapper);
         return mediaList.size() == 0 ? null : mediaList.get(0);
+    }
+
+    @Override
+    public Page<Media> mediaListByPage(Integer pageNum, Integer pageSize) {
+        Page<Media> page = new Page<>(pageNum, pageSize);
+        Page<Media> mediaPage = baseMapper.selectPage(page, null);
+        return mediaPage;
     }
 }
 
