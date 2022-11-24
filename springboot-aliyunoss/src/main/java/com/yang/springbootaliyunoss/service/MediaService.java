@@ -7,6 +7,7 @@ import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -26,9 +27,11 @@ public interface MediaService extends IService<Media> {
     /**
      * 文件下载
      * @param fileName
+     * @param mediaStoreTypeEnum
      * @param response
+     * @throws UnsupportedEncodingException
      */
-    void download(String fileName, HttpServletResponse response);
+    String download(String fileName, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws UnsupportedEncodingException;
 
 
     /**

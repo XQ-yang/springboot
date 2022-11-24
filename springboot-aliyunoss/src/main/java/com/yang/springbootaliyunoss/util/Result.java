@@ -1,5 +1,6 @@
 package com.yang.springbootaliyunoss.util;
 
+import com.yang.springbootaliyunoss.enums.ResponseCodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,27 +14,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Result<T> {
-    private static final String SUCCESS_CODE = "200";
-    private static final String ERROR_CODE = "400";
-    private static final String UNKNOWN_CODE = "500";
 
-    private String code;
+    private Integer code;
     private String msg;
     private T data;
 
     public static <T> Result<T> success(T data) {
-        return new Result<>(SUCCESS_CODE, "请求成功！",data);
+        return new Result<>(ResponseCodeEnum.SUCCESS.getCode(), ResponseCodeEnum.SUCCESS.getMsg(),data);
     }
 
     public static <T> Result<T> success(String msg, T data) {
-        return new Result<>(SUCCESS_CODE, msg, data);
+        return new Result<>(ResponseCodeEnum.SUCCESS.getCode(), msg, data);
     }
 
     public static <T> Result<T> error(String msg) {
-        return new Result<>(ERROR_CODE, msg, null);
+        return new Result<>(ResponseCodeEnum.SERVER_ERROR.getCode(), msg, null);
     }
 
     public static <T> Result<T> error() {
-        return new Result<>(UNKNOWN_CODE, "系统错误", null);
+        return new Result<>(ResponseCodeEnum.UN_KNOWN.getCode(), ResponseCodeEnum.UN_KNOWN.getMsg(), null);
     }
 }

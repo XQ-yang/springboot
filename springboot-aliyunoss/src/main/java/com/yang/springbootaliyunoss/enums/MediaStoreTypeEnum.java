@@ -35,23 +35,34 @@ public enum MediaStoreTypeEnum {
      * @return
      */
     public static MediaStoreTypeEnum valueOf(final Integer value) {
-        MediaStoreTypeEnum[] mediaStoreTypeEnums = MediaStoreTypeEnum.values();
-        for (MediaStoreTypeEnum mediaStoreTypeEnum : mediaStoreTypeEnums) {
-            if (mediaStoreTypeEnum.getCode().equals(value)) {
-                return mediaStoreTypeEnum;
-            }
-        }
-        return null;
+        return Arrays.stream(MediaStoreTypeEnum.values())
+                .filter(enu -> enu.getCode().equals(value))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("错误的资源存储方式"));
+
+//        MediaStoreTypeEnum[] mediaStoreTypeEnums = MediaStoreTypeEnum.values();
+//        for (MediaStoreTypeEnum mediaStoreTypeEnum : mediaStoreTypeEnums) {
+//            if (mediaStoreTypeEnum.getCode().equals(value)) {
+//                return mediaStoreTypeEnum;
+//            }
+//        }
+//        return null;
     }
 
-    public static Integer codeOf(final String type) {
-        MediaStoreTypeEnum[] mediaStoreTypeEnums = MediaStoreTypeEnum.values();
-        for (MediaStoreTypeEnum mediaStoreTypeEnum : mediaStoreTypeEnums) {
-            if (mediaStoreTypeEnum.getType().equals(type)) {
-                return mediaStoreTypeEnum.code;
-            }
-        }
-        return null;
+    public static MediaStoreTypeEnum codeOf(final String type) {
+        return Arrays.stream(MediaStoreTypeEnum.values())
+                .filter(enu -> enu.getType().equals(type))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("错误的资源存储方式"));
+
+
+//        MediaStoreTypeEnum[] mediaStoreTypeEnums = MediaStoreTypeEnum.values();
+//        for (MediaStoreTypeEnum mediaStoreTypeEnum : mediaStoreTypeEnums) {
+//            if (mediaStoreTypeEnum.getType().equals(type)) {
+//                return mediaStoreTypeEnum;
+//            }
+//        }
+//        return null;
     }
 
 

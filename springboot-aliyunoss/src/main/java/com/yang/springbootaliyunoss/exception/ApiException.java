@@ -1,5 +1,6 @@
 package com.yang.springbootaliyunoss.exception;
 
+import com.yang.springbootaliyunoss.enums.ResponseCodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiException extends RuntimeException {
-    private String code;
-    private String msg;
+    private ResponseCodeEnum responseCodeEnum;
 }

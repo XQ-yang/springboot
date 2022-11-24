@@ -14,8 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import static com.yang.springbootaliyunoss.util.Result.error;
 import static com.yang.springbootaliyunoss.util.Result.success;
 
 /**
@@ -46,9 +48,13 @@ public class AliyunOssController {
 
     @ApiOperation("文件下载")
     @GetMapping("/download")
-    public void mediaDownload(@RequestParam("fileName") String fileName, HttpServletResponse response) {
-        System.err.println(fileName);
-        mediaService.download(fileName, response);
+    public Result<String> mediaDownload(@RequestParam("fileName") String fileName, @RequestParam("storeType") String storeType, HttpServletResponse response) {
+        MediaStoreTypeEnum mediaStoreTypeEnum = MediaStoreTypeEnum.codeOf(storeType);
+        try {
+            return error(mediaService.download(fileName, mediaStoreTypeEnum, response));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @ApiOperation("逻辑删除文件记录")

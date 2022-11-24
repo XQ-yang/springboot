@@ -1,5 +1,6 @@
 package com.yang.springbootaliyunoss.handler;
 
+import com.yang.springbootaliyunoss.enums.ResponseCodeEnum;
 import com.yang.springbootaliyunoss.exception.ApiException;
 import com.yang.springbootaliyunoss.util.Result;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,18 +16,18 @@ import org.springframework.web.multipart.MultipartException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
-    public Result<Boolean> apiExceptionHandler(ApiException e) {
+    public Result<Boolean> apiExceptionHandler(ResponseCodeEnum responseCodeEnum) {
         Result<Boolean> result = new Result<>();
-        result.setCode(e.getCode());
-        result.setMsg(e.getMsg());
+        result.setCode(responseCodeEnum.getCode());
+        result.setMsg(responseCodeEnum.getMsg());
         return result;
     }
 
-    @ExceptionHandler(MultipartException.class)
-    public Result<Boolean> uploadExceptionHandler(MultipartException e) {
+    @ExceptionHandler(RuntimeException.class)
+    public Result<Boolean> RuntimeExceptionHandler(ResponseCodeEnum responseCodeEnum) {
         Result<Boolean> result = new Result<>();
-        result.setCode("303");
-        result.setMsg(e.getMessage());
+        result.setCode(responseCodeEnum.getCode());
+        result.setMsg(responseCodeEnum.getMsg());
         return result;
     }
 }

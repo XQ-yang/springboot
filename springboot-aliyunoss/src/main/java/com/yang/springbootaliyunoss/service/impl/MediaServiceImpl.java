@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yang.springbootaliyunoss.entity.AliyunOssProperties;
 import com.yang.springbootaliyunoss.entity.Media;
 import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
+import com.yang.springbootaliyunoss.enums.ResponseCodeEnum;
 import com.yang.springbootaliyunoss.exception.ApiException;
 import com.yang.springbootaliyunoss.mapper.MediaMapper;
 import com.yang.springbootaliyunoss.service.MediaService;
@@ -20,11 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.UUID;
@@ -78,11 +77,9 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         try {
             // 文件的md5
             String md5 = md5(file.getInputStream());
-            Media fileByMd5 = getFileByMd5(md5);
 
             switch (mediaStoreTypeEnum) {
                 case LOCAL:
-                    System.err.println("===============Hello=================================");
                     File dir = new File(uploadPath);
                     if (!dir.exists()) {
                         dir.mkdirs();
@@ -92,7 +89,6 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                     break;
 
                 case ALIYUNOSS:
-                    System.err.println("===============world=================================");
                     PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + originalFilename, file.getInputStream());
                     if (result != null) {
                         url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + originalFilename;
@@ -113,7 +109,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
             baseMapper.insert(media);
             return url;
         } catch (IOException e) {
-            throw new ApiException("301", "上传失败！");
+            throw new ApiException(ResponseCodeEnum.FAIL);
         } finally {
             ossClient.shutdown();
         }
@@ -172,62 +168,79 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
 
 
     @Override
-    public void download(String fileName, HttpServletResponse response) {
+    public String download(String fileName, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws UnsupportedEncodingException {
         OSS ossClient = aliyunOssProperties.ossClient();
-        // 获取文件原始名称
-        String originalFileName;
-        Media media = getFileName(fileName);
-        if (media != null) {
-            originalFileName = media.getName();
-        } else {
-            throw new ApiException("300", "没有该对象");
-        }
         // 设置响应编码
         response.setCharacterEncoding("UTF-8");
 
-        BufferedInputStream inputStream = null;
-        BufferedOutputStream outputStream = null;
+        OSSObject ossObject = null;
+        // 设置响应头、以附件形式打开文件
+        response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(fileName, "UTF-8"));
 
-        try {
-            OSSObject ossObject = null;
-            // 设置响应头、以附件形式打开文件
-            response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(fileName, "UTF-8"));
-
-            try {
-                ossObject = ossClient.getObject(bucket, filehost + "/" + fileName);
-            } catch (OSSException e) {
-                throw new ApiException("302", "服务器没有该文件！");
-            } catch (ClientException e) {
-                throw new ApiException("500", "服务器错误！");
-            }
-
-
-            // 读取文件内容
-            inputStream = new BufferedInputStream(ossObject.getObjectContent());
-            outputStream = new BufferedOutputStream(response.getOutputStream());
-
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, length);
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (outputStream != null) {
-                    outputStream.flush();
-                    outputStream.close();
+        switch (mediaStoreTypeEnum) {
+            case LOCAL:
+                FileInputStream fileInputStream = null;
+                ServletOutputStream outputStream = null;
+                try {
+                    fileInputStream = new FileInputStream(uploadPath + fileName);
+                    outputStream = response.getOutputStream();
+                    byte[] bytes = new byte[1024];
+                    int length;
+                    while ((length = fileInputStream.read(bytes)) != -1) {
+                        outputStream.write(bytes, 0, length);
+                    }
+                } catch (FileNotFoundException e){
+                    return "文件不存在！";
+                }catch (IOException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    try {
+                        fileInputStream.close();
+                        outputStream.flush();
+                        outputStream.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+                break;
+            case ALIYUNOSS:
+                BufferedInputStream inputStream = null;
+                BufferedOutputStream aliyunoutputStream = null;
 
-                if (inputStream != null) {
-                    inputStream.close();
+                try {
+                    try {
+                        ossObject = ossClient.getObject(bucket, filehost + "/" + fileName);
+                    } catch (OSSException e) {
+                        return "文件不存在！";
+                    } catch (ClientException e) {
+                        throw new ApiException(ResponseCodeEnum.SERVER_ERROR);
+                    }
+
+
+                    // 读取文件内容
+                    inputStream = new BufferedInputStream(ossObject.getObjectContent());
+                    aliyunoutputStream = new BufferedOutputStream(response.getOutputStream());
+
+                    byte[] bytes = new byte[1024];
+                    int length;
+                    while ((length = inputStream.read(bytes)) != -1) {
+                        aliyunoutputStream.write(bytes, 0, length);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    try {
+                        aliyunoutputStream.flush();
+                        aliyunoutputStream.close();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+                break;
         }
+
+        return null;
     }
 
     @Override
