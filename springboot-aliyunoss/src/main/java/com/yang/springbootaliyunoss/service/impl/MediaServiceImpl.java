@@ -74,6 +74,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
             Media fileByMd5 = getFileByMd5(md5);
             if (fileByMd5 != null) {
                 url = fileByMd5.getUrl();
+                newFileName = fileByMd5.getNewName();
             } else {
                 PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + newFileName, file.getInputStream());
                 if (result != null) {
@@ -112,6 +113,9 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         // 设置响应编码
         response.setCharacterEncoding("UTF-8");
 
+        BufferedInputStream inputStream = null;
+        BufferedOutputStream outputStream = null;
+
         try {
             OSSObject ossObject = null;
             try {
@@ -125,8 +129,8 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
             // 设置响应头、以附件形式打开文件
             response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(originalFileName, "UTF-8"));
             // 读取文件内容
-            BufferedInputStream inputStream = new BufferedInputStream(ossObject.getObjectContent());
-            BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
+             inputStream = new BufferedInputStream(ossObject.getObjectContent());
+             outputStream = new BufferedOutputStream(response.getOutputStream());
 
             byte[] bytes = new byte[1024];
             int length;
@@ -134,16 +138,21 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                 outputStream.write(bytes, 0, length);
             }
 
-            if (outputStream != null) {
-                outputStream.flush();
-                outputStream.close();
-            }
-
-            if (inputStream != null) {
-                inputStream.close();
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.flush();
+                    outputStream.close();
+                }
+
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -153,7 +162,8 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         queryWrapper.select(Media::getName)
                 .eq(Media::getNewName, fileName)
                 .eq(Media::getIsDeleted, 0);
-        return baseMapper.selectOne(queryWrapper);
+        List<Media> mediaList = baseMapper.selectList(queryWrapper);
+        return mediaList.size() == 0 ? null : mediaList.get(0);
     }
 
     public Media getFileByMd5(String md5) {

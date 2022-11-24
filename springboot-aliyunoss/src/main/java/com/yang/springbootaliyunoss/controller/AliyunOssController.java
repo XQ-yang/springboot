@@ -7,7 +7,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +51,7 @@ public class AliyunOssController {
     @ResponseBody
     @GetMapping("/download")
     public void mediaDownload(@RequestParam("fileName") String fileName, HttpServletResponse response) {
+        System.err.println(fileName);
         mediaService.download(fileName, response);
     }
 
