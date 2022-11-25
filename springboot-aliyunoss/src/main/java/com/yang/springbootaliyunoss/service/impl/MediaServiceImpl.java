@@ -113,57 +113,6 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         } finally {
             ossClient.shutdown();
         }
-
-//        try {
-//            // 文件的md5
-//            String md5 = md5(file.getInputStream());
-//            Media fileByMd5 = getFileByMd5(md5);
-//
-//            switch (mediaStoreTypeEnum) {
-//                case LOCAL:
-//                    if (fileByMd5 != null) {
-//                        url = fileByMd5.getUrl();
-//                        newFileName = fileByMd5.getNewName();
-//                    } else {
-//                        System.err.println("===============Hello=================================");
-//                        File dir = new File(uploadPath);
-//                        if (!dir.exists()) {
-//                            dir.mkdirs();
-//                        }
-//                        file.transferTo(new File(uploadPath + newFileName));
-//                        url = uploadPath + newFileName;
-//                        break;
-//                    }
-//                case ALIYUNOSS:
-//                    if (fileByMd5 != null) {
-//                        url = fileByMd5.getUrl();
-//                        newFileName = fileByMd5.getNewName();
-//                    } else {
-//                        System.err.println("===============Hello=================================");
-//                        PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + newFileName, file.getInputStream());
-//                        if (result != null) {
-//                            url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + newFileName;
-//                        }
-//                        break;
-//                    }
-//            }
-//
-//            Media media = new Media();
-//            media.setName(originalFilename);
-//            media.setType(type);
-//            media.setSize(size);
-//            media.setMd5(md5);
-//            media.setStoreType(mediaStoreTypeEnum.getType());
-//            media.setUrl(url);
-//            media.setNewName(newFileName);
-//
-//            baseMapper.insert(media);
-//            return url;
-//        } catch (IOException e) {
-//            throw new ApiException("301", "上传失败！");
-//        } finally {
-//            ossClient.shutdown();
-//        }
     }
 
 
@@ -174,11 +123,15 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         response.setCharacterEncoding("UTF-8");
 
         OSSObject ossObject = null;
-        // 设置响应头、以附件形式打开文件
+        // 设置响应头、以附件形式打开文件，URLEncoder.encode()防止中文文件名乱码
         response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(fileName, "UTF-8"));
 
         switch (mediaStoreTypeEnum) {
             case LOCAL:
+                File file = new File(uploadPath + "/" + fileName);
+                if (!file.exists()) {
+                    return "文件不存在";
+                }
                 FileInputStream fileInputStream = null;
                 ServletOutputStream outputStream = null;
                 try {
@@ -189,31 +142,36 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                     while ((length = fileInputStream.read(bytes)) != -1) {
                         outputStream.write(bytes, 0, length);
                     }
-                } catch (FileNotFoundException e){
-                    return "文件不存在！";
                 }catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    return "下载失败！";
                 } finally {
                     try {
                         fileInputStream.close();
                         outputStream.flush();
                         outputStream.close();
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
                     }
                 }
                 break;
             case ALIYUNOSS:
                 BufferedInputStream inputStream = null;
                 BufferedOutputStream aliyunoutputStream = null;
+                boolean exist = ossClient.doesObjectExist(bucket, filehost + "/" + fileName);
+                if (!exist) {
+                    return "文件不存在！";
+                }
 
                 try {
                     try {
                         ossObject = ossClient.getObject(bucket, filehost + "/" + fileName);
                     } catch (OSSException e) {
+                        e.printStackTrace();
                         return "文件不存在！";
                     } catch (ClientException e) {
-                        throw new ApiException(ResponseCodeEnum.SERVER_ERROR);
+                        e.printStackTrace();
+                        return "bucket不存在！";
                     }
 
 
@@ -227,7 +185,8 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                         aliyunoutputStream.write(bytes, 0, length);
                     }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    return "下载失败！";
                 } finally {
                     try {
                         aliyunoutputStream.flush();
@@ -240,7 +199,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                 break;
         }
 
-        return null;
+        return "下载成功！";
     }
 
     @Override

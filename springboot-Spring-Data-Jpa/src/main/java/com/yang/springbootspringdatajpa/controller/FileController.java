@@ -44,14 +44,13 @@ public class FileController {
         return "upload";
     }
 
-    @ResponseBody
     @ApiOperation("上传文件")
     @ApiImplicitParam(name = "file", paramType = "form", value = "上传文件", dataType = "MultipartFile", required = true)
     @PostMapping("/upload")
-    public Result<String> upload(@RequestPart(value = "file") MultipartFile file) throws IOException {
-        if (file == null) {
-            return error("没有选择文件");
-        }
+    public String upload(@RequestPart(value = "file") MultipartFile file, Model model) throws IOException {
+//        if (file == null) {
+//            return error("没有选择文件");
+//        }
         // 文件原始名称
         String originalFilename = file.getOriginalFilename();
 
@@ -71,28 +70,30 @@ public class FileController {
         }
 
         // 文件md5
-        String md5 = md5(file.getInputStream());
-        String downloadUrl;
-
-        FileModel fileByMD5 = getFileByMD5(md5);
-        if (fileByMD5 != null) {
-            downloadUrl = fileByMD5.getDownloadUrl();
-        } else {
-            file.transferTo(new File(uploadPath + fileName));
-            downloadUrl = "http://localhost:8080/jpa/file/download?fileName=" + fileName;
-        }
+//        String md5 = md5(file.getInputStream());
+//        String downloadUrl;
+//
+//        FileModel fileByMD5 = getFileByMD5(md5);
+//        if (fileByMD5 != null) {
+//            downloadUrl = fileByMD5.getDownloadUrl();
+//        } else {
+//            file.transferTo(new File(uploadPath + fileName));
+//            downloadUrl = "http://localhost:8080/jpa/file/download?fileName=" + fileName;
+//        }
 
         // 保存到数据库
-        FileModel fileModel = new FileModel();
-        fileModel.setFileName(originalFilename);
-        fileModel.setType(type);
-        fileModel.setSize(size);
-        fileModel.setMd5(md5);
-        fileModel.setNewName(fileName);
-        fileModel.setDownloadUrl(downloadUrl);
-        fileRepository.save(fileModel);
+//        FileModel fileModel = new FileModel();
+//        fileModel.setFileName(originalFilename);
+//        fileModel.setType(type);
+//        fileModel.setSize(size);
+//        fileModel.setMd5(md5);
+//        fileModel.setNewName(fileName);
+//        fileModel.setDownloadUrl(downloadUrl);
+//        fileRepository.save(fileModel);
+        file.transferTo(new File(uploadPath + fileName));
+        model.addAttribute("fileName", fileName);
 
-        return success(downloadUrl);
+        return "upload";
     }
 
     @GetMapping("/toDownload")
