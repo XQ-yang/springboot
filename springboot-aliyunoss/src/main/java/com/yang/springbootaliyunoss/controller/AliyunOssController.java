@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.UnsupportedEncodingException;
@@ -35,11 +36,12 @@ public class AliyunOssController {
 
     @ApiOperation("文件上传")
     @PostMapping("/upload")
-    public Result<String> mediaUpload(@RequestPart("file") MultipartFile file, @RequestParam(defaultValue = "1") Integer storeType) {
+    public Result<String> mediaUpload(@RequestPart("file") MultipartFile file, @RequestParam Integer storeType, HttpServletRequest request) {
         MediaStoreTypeEnum mediaStoreTypeEnum = MediaStoreTypeEnum.valueOf(storeType);
-        return success("上传成功", mediaService.uploadFile(file, mediaStoreTypeEnum));
+        return success("上传成功", mediaService.uploadFile(file, mediaStoreTypeEnum, request));
     }
 
+    @ApiOperation("文件列表信息")
     @GetMapping("/mediaList")
     public Result<Page<Media>> fileList(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         Page<Media> list = mediaService.mediaListByPage(pageNum, pageSize);

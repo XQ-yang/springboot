@@ -1,6 +1,5 @@
 package com.yang.springbootaliyunoss.enums;
 
-import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

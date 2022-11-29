@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
@@ -58,7 +59,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
     }
 
     @Override
-    public String uploadFile(MultipartFile file, MediaStoreTypeEnum mediaStoreTypeEnum) {
+    public String uploadFile(MultipartFile file, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletRequest request) {
         OSS ossClient = aliyunOssProperties.ossClient();
         // 文件原始名称
         String originalFilename = file.getOriginalFilename();
@@ -85,7 +86,7 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
                         dir.mkdirs();
                     }
                     file.transferTo(new File(uploadPath + originalFilename));
-                    url = uploadPath + originalFilename;
+                    url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/file/" + originalFilename;
                     break;
 
                 case ALIYUNOSS:
