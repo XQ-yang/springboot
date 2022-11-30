@@ -10,11 +10,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yang.springbootaliyunoss.entity.AliyunOssProperties;
 import com.yang.springbootaliyunoss.entity.Media;
+import com.yang.springbootaliyunoss.enums.FileEnum;
 import com.yang.springbootaliyunoss.enums.MediaStoreTypeEnum;
 import com.yang.springbootaliyunoss.enums.ResponseCodeEnum;
 import com.yang.springbootaliyunoss.exception.ApiException;
 import com.yang.springbootaliyunoss.mapper.MediaMapper;
 import com.yang.springbootaliyunoss.service.MediaService;
+import com.yang.springbootaliyunoss.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -65,7 +67,11 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         String originalFilename = file.getOriginalFilename();
         // 文件类型
         String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String type = suffix.replace(".", "");
+
+        // 文件分类路径
+        String typePath = FileUtil.getFileType(suffix);
+
+        String type = FileEnum.nameOf(typePath).getName();
         // 文件大小
         Long size = file.getSize();
 
@@ -81,18 +87,18 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
 
             switch (mediaStoreTypeEnum) {
                 case LOCAL:
-                    File dir = new File(uploadPath);
+                    File dir = new File(uploadPath + typePath);
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
-                    file.transferTo(new File(uploadPath + originalFilename));
-                    url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/file/" + originalFilename;
+                    file.transferTo(new File(uploadPath + typePath + originalFilename));
+                    url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + typePath + originalFilename;
                     break;
 
                 case ALIYUNOSS:
-                    PutObjectResult result = ossClient.putObject(bucket, filehost + "/" + originalFilename, file.getInputStream());
+                    PutObjectResult result = ossClient.putObject(bucket, filehost + typePath + originalFilename, file.getInputStream());
                     if (result != null) {
-                        url = "https://" + bucket + "." + endpoint + "/" + filehost + "/" + originalFilename;
+                        url = "https://" + bucket + "." + endpoint + "/" + filehost + typePath + originalFilename;
                     }
                     break;
 
@@ -118,89 +124,24 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
 
 
     @Override
-    public String download(String fileName, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws UnsupportedEncodingException {
-        OSS ossClient = aliyunOssProperties.ossClient();
+    public String download(String fileName, String typePath, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws IOException {
+
         // 设置响应编码
         response.setCharacterEncoding("UTF-8");
 
-        OSSObject ossObject = null;
         // 设置响应头、以附件形式打开文件，URLEncoder.encode()防止中文文件名乱码
         response.setHeader("content-disposition", "attachment; fileName=" + URLEncoder.encode(fileName, "UTF-8"));
 
+        String msg = "下载成功";
         switch (mediaStoreTypeEnum) {
             case LOCAL:
-                File file = new File(uploadPath + "/" + fileName);
-                if (!file.exists()) {
-                    return "文件不存在";
-                }
-                FileInputStream fileInputStream = null;
-                ServletOutputStream outputStream = null;
-                try {
-                    fileInputStream = new FileInputStream(uploadPath + fileName);
-                    outputStream = response.getOutputStream();
-                    byte[] bytes = new byte[1024];
-                    int length;
-                    while ((length = fileInputStream.read(bytes)) != -1) {
-                        outputStream.write(bytes, 0, length);
-                    }
-                }catch (IOException e) {
-                    e.printStackTrace();
-                    return "下载失败！";
-                } finally {
-                    try {
-                        fileInputStream.close();
-                        outputStream.flush();
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                msg = downloadLocal(fileName, typePath, response);
                 break;
             case ALIYUNOSS:
-                BufferedInputStream inputStream = null;
-                BufferedOutputStream aliyunoutputStream = null;
-                boolean exist = ossClient.doesObjectExist(bucket, filehost + "/" + fileName);
-                if (!exist) {
-                    return "文件不存在！";
-                }
-
-                try {
-                    try {
-                        ossObject = ossClient.getObject(bucket, filehost + "/" + fileName);
-                    } catch (OSSException e) {
-                        e.printStackTrace();
-                        return "文件不存在！";
-                    } catch (ClientException e) {
-                        e.printStackTrace();
-                        return "bucket不存在！";
-                    }
-
-
-                    // 读取文件内容
-                    inputStream = new BufferedInputStream(ossObject.getObjectContent());
-                    aliyunoutputStream = new BufferedOutputStream(response.getOutputStream());
-
-                    byte[] bytes = new byte[1024];
-                    int length;
-                    while ((length = inputStream.read(bytes)) != -1) {
-                        aliyunoutputStream.write(bytes, 0, length);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return "下载失败！";
-                } finally {
-                    try {
-                        aliyunoutputStream.flush();
-                        aliyunoutputStream.close();
-                        inputStream.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                msg = downloadAliyunOss(fileName, typePath, response);
                 break;
         }
-
-        return "下载成功！";
+        return msg;
     }
 
     @Override
@@ -226,6 +167,90 @@ public class MediaServiceImpl extends ServiceImpl<MediaMapper, Media>
         Page<Media> page = new Page<>(pageNum, pageSize);
         Page<Media> mediaPage = baseMapper.selectPage(page, null);
         return mediaPage;
+    }
+
+    public String downloadLocal(String fileName, String typePath, HttpServletResponse response) throws IOException {
+        File file = new File(uploadPath + typePath + fileName);
+        System.err.println(file.exists());
+        if (file.exists()) {
+            FileInputStream fileInputStream = null;
+            ServletOutputStream outputStream = null;
+            try {
+                fileInputStream = new FileInputStream(uploadPath + typePath + fileName);
+                outputStream = response.getOutputStream();
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = fileInputStream.read(bytes)) != -1) {
+                    outputStream.write(bytes, 0, length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return "下载失败！";
+            } finally {
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.flush();
+                    outputStream.close();
+                }
+            }
+        } else {
+            return "文件不存在";
+        }
+        return "下载成功";
+    }
+
+
+    public String downloadAliyunOss(String fileName, String typePath, HttpServletResponse response) {
+
+        OSS ossClient = aliyunOssProperties.ossClient();
+        OSSObject ossObject;
+
+        boolean exist = ossClient.doesObjectExist(bucket, filehost + typePath + fileName);
+        System.err.println(exist);
+        if (!exist) {
+            return "文件不存在！";
+        }
+
+        BufferedInputStream inputStream = null;
+        BufferedOutputStream aliyunoutputStream = null;
+
+        try {
+            try {
+                ossObject = ossClient.getObject(bucket, filehost + typePath + fileName);
+            } catch (OSSException e) {
+                e.printStackTrace();
+                return "文件不存在！";
+            } catch (ClientException e) {
+                e.printStackTrace();
+                return "bucket不存在！";
+            }
+
+
+            // 读取文件内容
+            inputStream = new BufferedInputStream(ossObject.getObjectContent());
+            aliyunoutputStream = new BufferedOutputStream(response.getOutputStream());
+
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = inputStream.read(bytes)) != -1) {
+                aliyunoutputStream.write(bytes, 0, length);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "下载失败！";
+        } finally {
+            try {
+                aliyunoutputStream.flush();
+                aliyunoutputStream.close();
+                inputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return "下载成功";
     }
 }
 

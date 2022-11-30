@@ -14,9 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *
  * @author canyou
  */
-@EnableTransactionManagement(proxyTargetClass = true)
 @Configuration
-@MapperScan("com.canyou.*.mapper")
 public class MybatisPlusConfig {
 
     /**
@@ -38,7 +36,7 @@ public class MybatisPlusConfig {
         pageInterceptor.setDbType(DbType.MYSQL);
         interceptor.addInnerInterceptor(pageInterceptor);
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
-        //// 低效率sql拦截器开启会引发很多异常, 不开启
+        // 低效率sql拦截器开启会引发很多异常, 不开启
         // interceptor.addInnerInterceptor(new IllegalSQLInnerInterceptor());
         return interceptor;
     }

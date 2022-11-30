@@ -19,6 +19,10 @@ public class Result<T> {
     private String msg;
     private T data;
 
+    public static <T> Result<T> msg(String msg) {
+        return new Result<>(null, msg, null);
+    }
+
     public static <T> Result<T> success(T data) {
         return new Result<>(ResponseCodeEnum.SUCCESS.getCode(), ResponseCodeEnum.SUCCESS.getMsg(),data);
     }

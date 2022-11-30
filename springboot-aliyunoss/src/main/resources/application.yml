@@ -43,8 +43,8 @@ aliyun:
         accessKeySecret: 0gr012A0juUIhOjNzD7Nckfey4v205
         endpoint: oss-cn-hangzhou.aliyuncs.com
         bucket: yang-aliyun-oss
-        filehost: upload
+        filehost: file
 
 # 本地资源
 local:
-    uploadPath: D:/upload/
+    uploadPath: D:/upload

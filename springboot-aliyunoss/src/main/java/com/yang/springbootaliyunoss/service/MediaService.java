@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -29,12 +30,13 @@ public interface MediaService extends IService<Media> {
     /**
      * 文件下载
      * @param fileName
+     * @param typePath
      * @param mediaStoreTypeEnum
      * @param response
      * @return
-     * @throws UnsupportedEncodingException
+     * @throws IOException
      */
-    String download(String fileName, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws UnsupportedEncodingException;
+    String download(String fileName, String typePath, MediaStoreTypeEnum mediaStoreTypeEnum, HttpServletResponse response) throws IOException;
 
 
     /**

@@ -15,8 +15,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcSourceConfig implements WebMvcConfigurer {
     @Value("${local.uploadPath}")
     private String fileSavePath;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/file/**").addResourceLocations("file:"+ fileSavePath);
+        registry.addResourceHandler("/document/**").addResourceLocations("file:" + fileSavePath + "/document/");
+        registry.addResourceHandler("/picture/**").addResourceLocations("file:" + fileSavePath + "/picture/");
+        registry.addResourceHandler("/video/**").addResourceLocations("file:" + fileSavePath + "/video/");
+        registry.addResourceHandler("/audio/**").addResourceLocations("file:" + fileSavePath + "/audio/");
+        registry.addResourceHandler("/compress/**").addResourceLocations("file:" + fileSavePath + "/compress/");
     }
 }
